@@ -6,11 +6,12 @@ type Configurations struct {
 }
 
 type ServerConfigurations struct {
-	Port int
+	Port string
 }
 
 type DatabaseConfigurations struct {
 	Name     string
 	User     string
 	Password string
+	URI      string
 }

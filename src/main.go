@@ -10,12 +10,30 @@ import (
 	c "./config"
 	"github.com/spf13/viper"
 
-	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/gorilla/mux"
 )
 
-func CookieHandler(w http.ResponseWriter, r *http.Request) {
+func GetCookie(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	collection := client.Database(configuration.Database.Name).Collection("cookies")
+	res, err := collection.
+		fmt.Fprintf(w, "Cookie ID: %v", id)
+}
+
+func CreateCookie(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func DeleteCookie(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func UpdateCookie(w http.ResponseWriter, r *http.Request) {
 
 }
 
@@ -39,7 +57,7 @@ func main() {
 
 	// -- Set-up Database Client --
 
-	client, err := mongo.NewClient(options.Client().ApplyURI("<ATLAS_URI_HERE>"))
+	client, err := mongo.NewClient(options.Client().ApplyURI(configuration.Database.URI))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,11 +66,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Mongo Successfully connected.")
 	defer client.Disconnect(ctx)
 
 	// -- Set-up Server
 
 	r := mux.NewRouter()
-	r.HandleFunc("/cookies/{id}", CookieHandler)
+	r.HandleFunc("/api/cookies/{id}", GetCookie).Methods("GET")
+	r.HandleFunc("/api/cookies/{id}", CreateCookie).Methods("POST")
+	r.HandleFunc("/api/cookies/{id}", DeleteCookie).Methods("DELETE")
+	r.HandleFunc("/api/cookies/{id}", UpdateCookie).Methods("PUT")
+
 	http.Handle("/", r)
+	http.ListenAndServe(configuration.Server.Port, r)
 }
