@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -35,7 +36,16 @@ func GetCookie(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateCookie(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "You created a cookie")
+	w.Header().Set("Content-Type", "application/json")
+	var cookie models.Cookie
+	err := json.NewDecoder(r.Body).Decode(&cookie)
+
+	insertResult, err := collection.InsertOne(context.TODO(), cookie)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
 }
 
 func DeleteCookie(w http.ResponseWriter, r *http.Request) {
