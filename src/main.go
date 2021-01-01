@@ -49,7 +49,17 @@ func CreateCookie(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteCookie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
 
+	id, _ := primitive.ObjectIDFromHex(vars["id"])
+	filter := bson.M{"_id": id}
+	deleteResult, err := collection.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
 }
 
 func UpdateCookie(w http.ResponseWriter, r *http.Request) {
