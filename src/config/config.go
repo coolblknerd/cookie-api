@@ -13,5 +13,5 @@ type DatabaseConfigurations struct {
 	Name     string
 	User     string
 	Password string
-	URI      string
+	Host     string
 }

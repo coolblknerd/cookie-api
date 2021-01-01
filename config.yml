@@ -2,7 +2,7 @@ server:
   port: ":8080"
 
 database:
-  dbname: "cookie-finder"
-  dbuser: "admin"
-  dbpassword: "password"
-  uri: "mongodb://mongodb:27017"
+  name: "cookie-finder"
+  user: "admin"
+  password: "password"
+  host: "localhost:27017"
