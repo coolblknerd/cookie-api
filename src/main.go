@@ -63,9 +63,34 @@ func DeleteCookie(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateCookie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var cookie models.Cookie
+	err := json.NewDecoder(r.Body).Decode(&cookie)
 
+	vars := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(vars["id"])
+	filter := bson.M{"_id": id}
+
+	update := bson.M{
+		"$set": bson.M{
+			"name":        cookie.Name,
+			"size":        cookie.Size,
+			"ingredients": cookie.Ingredients,
+			"calories":    cookie.Calories,
+			"location":    cookie.Location,
+			"vegetarian":  cookie.Vegetarian,
+		},
+	}
+
+	updateResult, err := collection.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
 }
 
+// Why do I have duplicate documents in my database?
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/cookies/{id}", GetCookie).Methods("GET")
