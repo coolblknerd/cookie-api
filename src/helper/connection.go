@@ -37,7 +37,6 @@ type ErrorResponse struct {
 }
 
 func GetError(err error, w http.ResponseWriter) {
-
 	log.Fatal(err.Error())
 	var response = ErrorResponse{
 		ErrorMessage: err.Error(),
