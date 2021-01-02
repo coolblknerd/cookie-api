@@ -9,6 +9,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/coolblknerd/cookie-api/src/helper"
 	"github.com/coolblknerd/cookie-api/src/models"
@@ -17,6 +18,38 @@ import (
 
 var collection = helper.ConnectDB()
 var configs = helper.SetUpConfigs()
+
+func GetCookies(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var cookies []*models.Cookie
+
+	findOptions := options.Find()
+	findOptions.SetLimit(10)
+
+	cur, err := collection.Find(context.TODO(), bson.D{{}}, findOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for cur.Next(context.TODO()) {
+		var cookie models.Cookie
+		err := cur.Decode(&cookie)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		cookies = append(cookies, &cookie)
+	}
+
+	if err := cur.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	cur.Close(context.TODO())
+
+	fmt.Printf("Found multiple documents: %+v\n", cookies)
+
+}
 
 func GetCookie(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -94,6 +127,7 @@ func UpdateCookie(w http.ResponseWriter, r *http.Request) {
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/cookies/{id}", GetCookie).Methods("GET")
+	r.HandleFunc("/api/cookies", GetCookies).Methods("GET")
 	r.HandleFunc("/api/cookies", CreateCookie).Methods("POST")
 	r.HandleFunc("/api/cookies/{id}", DeleteCookie).Methods("DELETE")
 	r.HandleFunc("/api/cookies/{id}", UpdateCookie).Methods("PUT")

@@ -8,6 +8,7 @@ import (
 	c "github.com/coolblknerd/cookie-api/src/config"
 )
 
+// Need to mock this out with a configurations struct
 var configs = SetUpConfigs()
 
 func TestSetUpConfigs(t *testing.T) {
