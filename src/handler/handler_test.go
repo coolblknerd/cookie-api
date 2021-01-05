@@ -7,7 +7,7 @@ import (
 )
 
 func TestGetCookieByID(t *testing.T) {
-	req, err := http.NewRequest("GET", "localhost:8080/api/cookies/5fef7c0dd83dd77db9b8ec3b", nil)
+	req, err := http.NewRequest("GET", "localhost:8080/api/cookies?id=5fef7c0dd83dd77db9b8ec3b", nil)
 	if err != nil {
 		t.Error("The request returned a error")
 	}

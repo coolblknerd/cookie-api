@@ -16,7 +16,7 @@ var configs = helper.SetUpConfigs()
 func main() {
 	r := mux.NewRouter().StrictSlash(true)
 	apiRouter := r.PathPrefix("/api").Subrouter() // /api will give access to all the API endpoints
-	apiRouter.HandleFunc("/cookies/{id}", handler.GetCookieByID).Methods("GET")
+	apiRouter.HandleFunc("/cookies", handler.GetCookieByID).Methods("GET")
 	apiRouter.HandleFunc("/cookies", handler.GetCookies).Methods("GET")
 	apiRouter.HandleFunc("/cookies", handler.CreateCookie).Methods("POST")
 	apiRouter.HandleFunc("/cookies/{id}", handler.DeleteCookieByID).Methods("DELETE")

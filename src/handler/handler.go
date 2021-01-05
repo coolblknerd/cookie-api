@@ -8,7 +8,6 @@ import (
 
 	"github.com/coolblknerd/cookie-api/src/helper"
 	"github.com/coolblknerd/cookie-api/src/models"
-	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -48,16 +47,17 @@ func GetCookies(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetEntries : Get Cookie by ID
-// URL : /cookies
+// URL : /cookies/id=?
 // Parameters: none
 // Method: GET
 // Output: JSON Encoded Entries object if found else JSON Encoded Exception.
 func GetCookieByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var cookie models.Cookie
-	vars := mux.Vars(r)
 
-	id, _ := primitive.ObjectIDFromHex(vars["id"])
+	query := r.URL.Query().Get("id")
+
+	id, _ := primitive.ObjectIDFromHex(query)
 	filter := bson.M{"_id": id}
 	err := collection.FindOne(context.TODO(), filter).Decode(&cookie)
 
@@ -84,9 +84,10 @@ func CreateCookie(w http.ResponseWriter, r *http.Request) {
 
 func DeleteCookieByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	vars := mux.Vars(r)
 
-	id, _ := primitive.ObjectIDFromHex(vars["id"])
+	query := r.URL.Query().Get("id")
+
+	id, _ := primitive.ObjectIDFromHex(query)
 	filter := bson.M{"_id": id}
 	deleteResult, err := collection.DeleteOne(context.TODO(), filter)
 	if err != nil {
@@ -100,9 +101,9 @@ func UpdateCookieByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var cookie models.Cookie
 	err := json.NewDecoder(r.Body).Decode(&cookie)
+	query := r.URL.Query.Get("id")
 
-	vars := mux.Vars(r)
-	id, _ := primitive.ObjectIDFromHex(vars["id"])
+	id, _ := primitive.ObjectIDFromHex(query)
 	filter := bson.M{"_id": id}
 
 	update := bson.M{
