@@ -1,8 +1,0 @@
-server:
-  port: ":8080"
-
-database:
-  name: "cookie-finder"
-  user: "admin"
-  password: "password"
-  host: "localhost:27017"
