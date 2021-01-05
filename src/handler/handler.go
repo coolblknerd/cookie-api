@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -15,11 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var collection = helper.ConnectDB()
-
-type httpClient interface {
-	Do(req *http.Request) (*http.Response, error)
-}
+var collection = helper.ConnectDB("cookies")
 
 func GetCookies(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -49,11 +44,15 @@ func GetCookies(w http.ResponseWriter, r *http.Request) {
 
 	cur.Close(context.TODO())
 
-	fmt.Printf("Found multiple documents: %+v\n", cookies)
-
+	json.NewEncoder(w).Encode(cookies)
 }
 
-func GetCookie(w http.ResponseWriter, r *http.Request) {
+// GetEntries : Get Cookie by ID
+// URL : /cookies
+// Parameters: none
+// Method: GET
+// Output: JSON Encoded Entries object if found else JSON Encoded Exception.
+func GetCookieByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var cookie models.Cookie
 	vars := mux.Vars(r)
@@ -80,10 +79,10 @@ func CreateCookie(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
+	log.Println("Inserted a single document: ", insertResult.InsertedID)
 }
 
-func DeleteCookie(w http.ResponseWriter, r *http.Request) {
+func DeleteCookieByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 
@@ -94,10 +93,10 @@ func DeleteCookie(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
+	log.Printf("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
 }
 
-func UpdateCookie(w http.ResponseWriter, r *http.Request) {
+func UpdateCookieByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var cookie models.Cookie
 	err := json.NewDecoder(r.Body).Decode(&cookie)
@@ -122,5 +121,5 @@ func UpdateCookie(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
+	log.Printf("Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
 }

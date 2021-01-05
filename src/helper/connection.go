@@ -15,7 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectDB() *mongo.Collection {
+func ConnectDB(col string) *mongo.Collection {
 	configs := SetUpConfigs()
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbURI(configs)))
 	if err != nil {
@@ -27,7 +27,7 @@ func ConnectDB() *mongo.Collection {
 		log.Fatal(err)
 	}
 	log.Println("Mongo Successfully connected.")
-	collection := client.Database(configs.Database.Name).Collection("cookies")
+	collection := client.Database(configs.Database.Name).Collection(col)
 	return collection
 }
 
@@ -51,7 +51,7 @@ func GetError(err error, w http.ResponseWriter) {
 
 func SetUpConfigs() c.Configurations {
 	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
+	viper.AddConfigPath("/Users/madblkman/go/src/github.com/coolblknerd/cookie-api")
 	viper.AutomaticEnv()
 	viper.SetConfigType("yml")
 	var configuration c.Configurations

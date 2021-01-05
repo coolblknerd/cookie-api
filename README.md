@@ -11,3 +11,10 @@ An API to find the best cookies around! Honestly this is just a play API to prac
 - [ ] Set up formatted logging (Zap)
 - [ ] Write test for http request (httptest)
 - [ ] Set-up JWTs for secured API
+
+--- 
+
+### Thoughts
+
+- How do I want to organize how the app connects to the database?
+- *Give a package everything it needs to operate on it's own.*
