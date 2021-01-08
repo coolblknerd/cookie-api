@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+// Not really understanding why this test fails when the expected output and the response body are the same.
 func TestGetCookieByID(t *testing.T) {
 	req, err := http.NewRequest("GET", "localhost:8080/api/cookies?id=5fef7c0dd83dd77db9b8ec3b", nil)
 	if err != nil {

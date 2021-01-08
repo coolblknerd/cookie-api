@@ -10,7 +10,7 @@ In order to run test against the handler users will need to make sure there is a
 
 - [x] Set up database configurations (mongo)
 - [x] Set up configs (viper)
-- [ ] Set up formatted logging (Zap)
+- [-] Set up formatted logging (Zap)
 - [ ] Write test for http request (httptest)
 - [ ] Set-up JWTs for secured API
 - [x] Set-up linter
