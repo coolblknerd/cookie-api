@@ -21,7 +21,8 @@ func ConnectDB(col string) *mongo.Collection {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	err = client.Connect(ctx)
 	if err != nil {
 		log.Fatal(err)
@@ -46,7 +47,10 @@ func GetError(err error, w http.ResponseWriter) {
 	message, _ := json.Marshal(response)
 
 	w.WriteHeader(response.StatusCode)
-	w.Write(message)
+	_, err = w.Write(message)
+	if err != nil {
+		log.Println("There was an issue with writing the response.")
+	}
 }
 
 func SetUpConfigs() c.Configurations {

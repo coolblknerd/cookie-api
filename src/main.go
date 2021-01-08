@@ -22,6 +22,6 @@ func main() {
 	apiRouter.HandleFunc("/cookies/{id}", handler.DeleteCookieByID).Methods("DELETE")
 	apiRouter.HandleFunc("/cookies/{id}", handler.UpdateCookieByID).Methods("PUT")
 	http.Handle("/", r)
-	fmt.Printf("Listening on port %v", configs.Server.Port)
+	fmt.Printf("Listening on port %v\n", configs.Server.Port)
 	log.Fatal(http.ListenAndServe(configs.Server.Port, r))
 }

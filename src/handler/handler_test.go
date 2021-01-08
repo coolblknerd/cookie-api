@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -21,7 +22,7 @@ func TestGetCookieByID(t *testing.T) {
 
 	expected := `{"_id":"5fef7c0dd83dd77db9b8ec3b","name":"chocolate-chip","size":"medium","ingredients":["chocolate chips","butter","sugar","dough"],"calories":"500 cals","location":"Crumbl Cookies","vegetarian":false}`
 
-	if rr.Body.String() != expected {
+	if reflect.DeepEqual(rr.Body.String(), expected) == false {
 		t.Errorf("Response body didn't return expected value.\nGot: %v\nExpected: %v", rr.Body.String(), expected)
 	}
 }

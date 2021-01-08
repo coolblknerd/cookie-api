@@ -5,16 +5,30 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/coolblknerd/cookie-api/src/helper"
 	"github.com/coolblknerd/cookie-api/src/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var collection = helper.ConnectDB("cookies")
+var collection *mongo.Collection
 
+func init() {
+	if os.Getenv("COOKIE_ENV") != "prod" {
+		collection = helper.ConnectDB("dev-cookies")
+		log.Println("Connected to dev environment")
+	}
+}
+
+// GetCookies : Get all Cookies
+// URL : /cookies
+// Parameters: none
+// Method: GET
+// Output: JSON Encoded Entries object if found else JSON Encoded Exception.
 func GetCookies(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var cookies []*models.Cookie
@@ -43,10 +57,13 @@ func GetCookies(w http.ResponseWriter, r *http.Request) {
 
 	cur.Close(context.TODO())
 
-	json.NewEncoder(w).Encode(cookies)
+	err = json.NewEncoder(w).Encode(cookies)
+	if err != nil {
+		log.Fatalf("There was a problem returning the response in json: %v", err)
+	}
 }
 
-// GetEntries : Get Cookie by ID
+// GetCookieByID : Get Cookie by ID
 // URL : /cookies/id=?
 // Parameters: none
 // Method: GET
@@ -66,13 +83,31 @@ func GetCookieByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(cookie)
+	err = json.NewEncoder(w).Encode(cookie)
+	if err != nil {
+		log.Fatalf("There was a problem returning the response in json: %v", err)
+	}
 }
 
+// CreateCookie : Create a Cookie
+// URL : /cookies
+// Parameters: {
+// 		"name": Sting,
+// 		"size": String,
+//     	"ingredients": []String
+//     	"calories": String,
+//     	"location": String,
+//     	"vegetarian": Bool
+// }
+// Method: POST
+// Output: Returns a successful status code
 func CreateCookie(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var cookie models.Cookie
 	err := json.NewDecoder(r.Body).Decode(&cookie)
+	if err != nil {
+		log.Fatalf("There was a problem returning the response in json: %v", err)
+	}
 
 	insertResult, err := collection.InsertOne(context.TODO(), cookie)
 	if err != nil {
@@ -82,6 +117,11 @@ func CreateCookie(w http.ResponseWriter, r *http.Request) {
 	log.Println("Inserted a single document: ", insertResult.InsertedID)
 }
 
+// DeleteCookieByID : Delete Cookie by ID
+// URL : /cookies/id=?
+// Parameters: none
+// Method: GET
+// Output: JSON Encoded Entries object if found else JSON Encoded Exception.
 func DeleteCookieByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -97,11 +137,26 @@ func DeleteCookieByID(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
 }
 
+// UpdateCookieByID : Update a Cookie by ID
+// URL : /cookies?id=?
+// Parameters: {
+// 		"name": Sting,
+// 		"size": String,
+//     	"ingredients": []String
+//     	"calories": String,
+//     	"location": String,
+//     	"vegetarian": Bool
+// }
+// Method: PUT
+// Output: Returns a successful status code
 func UpdateCookieByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var cookie models.Cookie
 	err := json.NewDecoder(r.Body).Decode(&cookie)
-	query := r.URL.Query.Get("id")
+	if err != nil {
+		log.Fatalf("There was a problem reading the response: %v", err)
+	}
+	query := r.URL.Query().Get("id")
 
 	id, _ := primitive.ObjectIDFromHex(query)
 	filter := bson.M{"_id": id}
