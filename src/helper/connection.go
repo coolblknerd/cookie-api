@@ -19,14 +19,14 @@ func ConnectDB(col string) *mongo.Collection {
 	configs := SetUpConfigs()
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbURI(configs)))
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	err = client.Connect(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	log.Println("Mongo Successfully connected.")
 	collection := client.Database(configs.Database.Name).Collection(col)
@@ -39,7 +39,7 @@ type ErrorResponse struct {
 }
 
 func GetError(err error, w http.ResponseWriter) {
-	log.Fatal(err.Error())
+	log.Print(err.Error())
 	var response = ErrorResponse{
 		ErrorMessage: err.Error(),
 		StatusCode:   http.StatusInternalServerError,

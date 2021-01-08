@@ -13,15 +13,23 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 )
 
 var collection *mongo.Collection
+var logger *zap.Logger
 
 func init() {
 	if os.Getenv("COOKIE_ENV") != "prod" {
 		collection = helper.ConnectDB("dev-cookies")
 		log.Println("Connected to dev environment")
 	}
+
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Println("Sorry, couldn't initialize logger.")
+	}
+	defer logger.Sync()
 }
 
 // GetCookies : Get all Cookies
@@ -38,28 +46,28 @@ func GetCookies(w http.ResponseWriter, r *http.Request) {
 
 	cur, err := collection.Find(context.TODO(), bson.D{{}}, findOptions)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("There was an issue finding any results.")
 	}
 
 	for cur.Next(context.TODO()) {
 		var cookie models.Cookie
 		err := cur.Decode(&cookie)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		cookies = append(cookies, &cookie)
 	}
 
 	if err := cur.Err(); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	cur.Close(context.TODO())
 
 	err = json.NewEncoder(w).Encode(cookies)
 	if err != nil {
-		log.Fatalf("There was a problem returning the response in json: %v", err)
+		log.Printf("There was a problem returning the response in json: %v", err)
 	}
 }
 
@@ -85,7 +93,7 @@ func GetCookieByID(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewEncoder(w).Encode(cookie)
 	if err != nil {
-		log.Fatalf("There was a problem returning the response in json: %v", err)
+		log.Printf("There was a problem returning the response in json: %v", err)
 	}
 }
 
@@ -106,12 +114,12 @@ func CreateCookie(w http.ResponseWriter, r *http.Request) {
 	var cookie models.Cookie
 	err := json.NewDecoder(r.Body).Decode(&cookie)
 	if err != nil {
-		log.Fatalf("There was a problem returning the response in json: %v", err)
+		log.Printf("There was a problem returning the response in json: %v", err)
 	}
 
 	insertResult, err := collection.InsertOne(context.TODO(), cookie)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	log.Println("Inserted a single document: ", insertResult.InsertedID)
@@ -131,7 +139,7 @@ func DeleteCookieByID(w http.ResponseWriter, r *http.Request) {
 	filter := bson.M{"_id": id}
 	deleteResult, err := collection.DeleteOne(context.TODO(), filter)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	log.Printf("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
@@ -154,7 +162,7 @@ func UpdateCookieByID(w http.ResponseWriter, r *http.Request) {
 	var cookie models.Cookie
 	err := json.NewDecoder(r.Body).Decode(&cookie)
 	if err != nil {
-		log.Fatalf("There was a problem reading the response: %v", err)
+		log.Printf("There was a problem reading the response: %v", err)
 	}
 	query := r.URL.Query().Get("id")
 
@@ -174,7 +182,7 @@ func UpdateCookieByID(w http.ResponseWriter, r *http.Request) {
 
 	updateResult, err := collection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	log.Printf("Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
