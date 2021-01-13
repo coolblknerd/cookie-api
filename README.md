@@ -11,7 +11,7 @@ In order to run test against the handler users will need to make sure there is a
 - [x] Set up database configurations (mongo)
 - [x] Set up configs (viper)
 - [x] Set up formatted logging (Zap)
-- [ ] Write test for http request (httptest)
+- [-] Write test for http request (httptest)
 - [ ] Set-up JWTs for secured API
 - [x] Set-up linter
 
@@ -23,7 +23,8 @@ In order to run test against the handler users will need to make sure there is a
 - *Give a package everything it needs to operate on it's own.*
 - I need to test the database behavior, as well as, the endpoints too
 - Moving forward it makes sense for the endpoints to return a value for testing purposes
-- I wish the logs would tell me where exactly the issue is with the code
+  - Changed mind. With the httptest library there's no need for this. The mux docs has some good info on how to handle this [here.](https://github.com/gorilla/mux#testing-handlers)
 - How do I separate the database calls from the handler logic?
 - It doesn't make sense to have database configuration in the helper package
 - The Update function shouldn't be able to take any other parameters or queries to avoid security concerns.
+- How do I set-up timeouts on my endpoints?

@@ -21,8 +21,11 @@ var logger *zap.Logger
 
 func init() {
 	if os.Getenv("COOKIE_ENV") != "prod" {
-		collection = helper.ConnectDB("dev-cookies")
+		collection = helper.ConnectDB("devCookies")
 		log.Println("Connected to dev environment")
+	} else {
+		collection = helper.ConnectDB("cookies")
+		log.Println("Connected to prod environment")
 	}
 
 	logger, err := zap.NewDevelopment()
